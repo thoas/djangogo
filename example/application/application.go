@@ -5,6 +5,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/thoas/djangogo/sessions/store"
 	"net/http"
 )
 
@@ -12,6 +13,7 @@ type Application struct {
 	DB         gorm.DB
 	CookieName string
 	Options    *Option
+	Store      store.Store
 }
 
 type Option struct {
@@ -37,6 +39,16 @@ func New(cookieName string, options *Option) (*Application, error) {
 
 	app.DB = DB
 	app.Options = options
+
+	store, err := store.NewRedisStore(1000, "tcp",
+		fmt.Sprintf(":%s",
+			options.Session["PORT"]), "", options.Session["DATABASE"], options.Session["PREFIX"])
+
+	if err != nil {
+		return nil, err
+	}
+
+	app.Store = store
 
 	return app, nil
 }
