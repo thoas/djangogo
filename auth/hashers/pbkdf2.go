@@ -5,8 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"golang.org/x/crypto/pbkdf2"
 	"strings"
+
+	"golang.org/x/crypto/pbkdf2"
 )
 
 type PBKDF2PasswordHasher struct{}
@@ -19,7 +20,7 @@ func (p *PBKDF2PasswordHasher) EncodeWithIteration(password string, salt string,
 	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha256.New))
 	hash = base64.StdEncoding.EncodeToString([]byte(hash))
 
-	return fmt.Sprintf("%s%s%s%s%s%s%s", p.Algorithm(), HASH_SEPARATOR, iter, HASH_SEPARATOR, salt, HASH_SEPARATOR, hash)
+	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HASH_SEPARATOR, iter, HASH_SEPARATOR, salt, HASH_SEPARATOR, hash)
 }
 
 func (p *PBKDF2PasswordHasher) Algorithm() string {
@@ -58,7 +59,7 @@ func (p *PBKDF2SHA1PasswordHasher) EncodeWithIteration(password string, salt str
 	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha1.New))
 	hash = base64.StdEncoding.EncodeToString([]byte(hash))
 
-	return fmt.Sprintf("%s%s%s%s%s%s%s", p.Algorithm(), HASH_SEPARATOR, iter, HASH_SEPARATOR, salt, HASH_SEPARATOR, hash)
+	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HASH_SEPARATOR, iter, HASH_SEPARATOR, salt, HASH_SEPARATOR, hash)
 }
 
 func (p *PBKDF2SHA1PasswordHasher) Algorithm() string {
