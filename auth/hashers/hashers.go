@@ -28,6 +28,20 @@ var PasswordHashers = []PasswordHasher{
 	&PBKDF2SHA1PasswordHasher{},
 }
 
+func CheckPassword(password string, encoded string) bool {
+	if IsPasswordUsable(password) {
+		return false
+	}
+
+	hasher, err := IdentityHasher(encoded)
+
+	if err != nil {
+		return false
+	}
+
+	return hasher.Verify(password, encoded)
+}
+
 func IsPasswordUsable(encoded string) bool {
 	if strings.HasPrefix(encoded, UNUSABLE_PASSWORD_PREFIX) {
 		return false
