@@ -22,7 +22,7 @@ func (p *PBKDF2SHA1PasswordHasher) Encode(password string, salt string) string {
 func (p *PBKDF2SHA1PasswordHasher) EncodeWithIteration(password string, salt string, iter int) string {
 	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha1.New))
 	hash = base64.StdEncoding.EncodeToString([]byte(hash))
-	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HASH_SEPARATOR, iter, HASH_SEPARATOR, salt, HASH_SEPARATOR, hash)
+	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HashSeparator, iter, HashSeparator, salt, HashSeparator, hash)
 }
 
 // Algorithm returns the algorithm name of this hasher.
@@ -32,14 +32,14 @@ func (p *PBKDF2SHA1PasswordHasher) Algorithm() string {
 
 // Verify takes the raw password and the encoded one, then checks if they match.
 func (p *PBKDF2SHA1PasswordHasher) Verify(password string, encoded string) bool {
-	results := strings.Split(encoded, HASH_SEPARATOR)
+	results := strings.Split(encoded, HashSeparator)
 	attempt := p.Encode(password, results[2])
 	return encoded == attempt
 }
 
 // SafeSummary returns a summary of the encoded password.
 func (p *PBKDF2SHA1PasswordHasher) SafeSummary(encoded string) PasswordSummary {
-	results := strings.Split(encoded, HASH_SEPARATOR)
+	results := strings.Split(encoded, HashSeparator)
 	return PasswordSummary{
 		Algorithm: p.Algorithm(),
 		Salt:      results[2],

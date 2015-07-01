@@ -41,7 +41,7 @@ func CheckPassword(password string, encoded string) bool {
 }
 
 func IsPasswordUsable(encoded string) bool {
-	if strings.HasPrefix(encoded, UNUSABLE_PASSWORD_PREFIX) {
+	if strings.HasPrefix(encoded, UnusablePasswordPrefix) {
 		return false
 	}
 

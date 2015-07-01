@@ -13,9 +13,9 @@ type MD5PasswordHasher struct{}
 func (p *MD5PasswordHasher) Encode(password string, salt string) string {
 	return fmt.Sprintf("%s%s%s%s%s",
 		p.Algorithm(),
-		HASH_SEPARATOR,
+		HashSeparator,
 		salt,
-		HASH_SEPARATOR,
+		HashSeparator,
 		fmt.Sprintf("%x", md5.Sum([]byte(salt+password))))
 }
 
@@ -26,14 +26,14 @@ func (p *MD5PasswordHasher) Algorithm() string {
 
 // Verify takes the raw password and the encoded one, then checks if they match.
 func (p *MD5PasswordHasher) Verify(password string, encoded string) bool {
-	results := strings.Split(encoded, HASH_SEPARATOR)
+	results := strings.Split(encoded, HashSeparator)
 	attempt := p.Encode(password, results[1])
 	return encoded == attempt
 }
 
 // SafeSummary returns a summary of the encoded password.
 func (p *MD5PasswordHasher) SafeSummary(encoded string) PasswordSummary {
-	results := strings.Split(encoded, HASH_SEPARATOR)
+	results := strings.Split(encoded, HashSeparator)
 	return PasswordSummary{
 		Algorithm: p.Algorithm(),
 		Salt:      results[1],

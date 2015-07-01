@@ -1,6 +1,9 @@
 package hashers
 
 const (
-	UNUSABLE_PASSWORD_PREFIX = "!"
-	HASH_SEPARATOR           = "$"
+	// UnsablePasswordPrefix is the prefix for an unusable password.
+	UnusablePasswordPrefix = "!"
+
+	// HashSeparator is the hash separator.
+	HashSeparator = "$"
 )
