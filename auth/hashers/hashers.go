@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const HASH_SEPARATOR = "$"
-
 type PasswordSummary struct {
 	Algorithm string
 	Salt      string
