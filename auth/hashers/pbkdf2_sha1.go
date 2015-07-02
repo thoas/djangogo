@@ -1,7 +1,7 @@
 package hashers
 
 import (
-	"crypto/sha256"
+	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
 	"strings"
@@ -9,36 +9,36 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-// PBKDF2PasswordHasher is the PBKDF2 SHA1 password hasher.
-type PBKDF2PasswordHasher struct{}
+// PBKDF2SHA1PasswordHasher is the PBKDF2 SHA1 password hasher.
+type PBKDF2SHA1PasswordHasher struct{}
 
 // Encode encodes the given password (adding the given salt) then returns encoded.
-func (p *PBKDF2PasswordHasher) Encode(password string, salt string) string {
+func (p *PBKDF2SHA1PasswordHasher) Encode(password string, salt string) string {
 	return p.EncodeWithIteration(password, salt, 1500)
 }
 
 // EncodeWithIteration encodes the given password (adding the given salt) with
 // iteration then returns encoded.
-func (p *PBKDF2PasswordHasher) EncodeWithIteration(password string, salt string, iter int) string {
-	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha256.New))
+func (p *PBKDF2SHA1PasswordHasher) EncodeWithIteration(password string, salt string, iter int) string {
+	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha1.New))
 	hash = base64.StdEncoding.EncodeToString([]byte(hash))
 	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HashSeparator, iter, HashSeparator, salt, HashSeparator, hash)
 }
 
 // Algorithm returns the algorithm name of this hasher.
-func (p *PBKDF2PasswordHasher) Algorithm() string {
-	return "pbkdf2_sha256"
+func (p *PBKDF2SHA1PasswordHasher) Algorithm() string {
+	return "pbkdf2_sha1"
 }
 
 // Verify takes the raw password and the encoded one, then checks if they match.
-func (p *PBKDF2PasswordHasher) Verify(password string, encoded string) bool {
+func (p *PBKDF2SHA1PasswordHasher) Verify(password string, encoded string) bool {
 	results := strings.Split(encoded, HashSeparator)
 	attempt := p.Encode(password, results[2])
 	return encoded == attempt
 }
 
 // SafeSummary returns a summary of the encoded password.
-func (p *PBKDF2PasswordHasher) SafeSummary(encoded string) PasswordSummary {
+func (p *PBKDF2SHA1PasswordHasher) SafeSummary(encoded string) PasswordSummary {
 	results := strings.Split(encoded, HashSeparator)
 	return PasswordSummary{
 		Algorithm: p.Algorithm(),
@@ -48,6 +48,6 @@ func (p *PBKDF2PasswordHasher) SafeSummary(encoded string) PasswordSummary {
 }
 
 // Salt returns the default salt (which defaults to a random 12 characters string).
-func (p *PBKDF2PasswordHasher) Salt() string {
+func (p *PBKDF2SHA1PasswordHasher) Salt() string {
 	return RandomString(12)
 }

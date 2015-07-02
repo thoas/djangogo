@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-const HASH_SEPARATOR = "$"
-
+// PasswordSummary contains encoded password information.
 type PasswordSummary struct {
 	Algorithm string
 	Salt      string
 	Hash      string
 }
 
+// PasswordHasher is a password hasher.
 type PasswordHasher interface {
 	Encode(password string, salt string) string
 	Verify(password string, encoded string) bool
@@ -21,6 +21,7 @@ type PasswordHasher interface {
 	Salt() string
 }
 
+// PasswordHashers are supported password hashers.
 var PasswordHashers = []PasswordHasher{
 	&MD5PasswordHasher{},
 	&SHA1PasswordHasher{},
@@ -28,13 +29,14 @@ var PasswordHashers = []PasswordHasher{
 	&PBKDF2SHA1PasswordHasher{},
 }
 
+// CheckPassword checks if the raw password matches with the encoded one.
+// Returns true if they match. Otherwise false.
 func CheckPassword(password string, encoded string) bool {
 	if IsPasswordUsable(password) {
 		return false
 	}
 
 	hasher, err := IdentityHasher(encoded)
-
 	if err != nil {
 		return false
 	}
@@ -42,8 +44,9 @@ func CheckPassword(password string, encoded string) bool {
 	return hasher.Verify(password, encoded)
 }
 
+// IsPasswordUsable return true the encoded password is usable.
 func IsPasswordUsable(encoded string) bool {
-	if strings.HasPrefix(encoded, UNUSABLE_PASSWORD_PREFIX) {
+	if strings.HasPrefix(encoded, UnusablePasswordPrefix) {
 		return false
 	}
 
@@ -56,6 +59,7 @@ func IsPasswordUsable(encoded string) bool {
 	return true
 }
 
+// IdentityHasher takes an encoded password and returns its corresponding hasher.
 func IdentityHasher(encoded string) (PasswordHasher, error) {
 	var algorithm = ""
 
@@ -72,7 +76,6 @@ func IdentityHasher(encoded string) (PasswordHasher, error) {
 	}
 
 	hasher, ok := OrderedPasswordHashers()[algorithm]
-
 	if !ok {
 		return nil, fmt.Errorf("%s is not a valid hasher", algorithm)
 	}
@@ -80,6 +83,7 @@ func IdentityHasher(encoded string) (PasswordHasher, error) {
 	return hasher, nil
 }
 
+// OrderedPasswordHashers returns password hashers map ordered by their algorithm name.
 func OrderedPasswordHashers() map[string]PasswordHasher {
 	results := make(map[string]PasswordHasher)
 
@@ -90,9 +94,10 @@ func OrderedPasswordHashers() map[string]PasswordHasher {
 	return results
 }
 
+// MakePassword takes a raw password, a salt and a given hasher (see password hasher
+// algorithm name -- Algorithm() method) then returns this password encoded.
 func MakePassword(password string, salt string, hasher string) (string, error) {
 	passwordHasher, ok := OrderedPasswordHashers()[hasher]
-
 	if !ok {
 		return "", fmt.Errorf("%s is not a valid hasher", hasher)
 	}

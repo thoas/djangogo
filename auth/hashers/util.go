@@ -8,7 +8,6 @@ func MaskHash(hash string, show int, char string) string {
 	masked := hash[:show]
 
 	length := len(hash)
-
 	for i := 0; i < length-show; i++ {
 		masked += char
 	}
