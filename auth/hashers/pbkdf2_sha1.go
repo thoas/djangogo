@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"golang.org/x/crypto/pbkdf2"
@@ -20,7 +21,7 @@ func (p *PBKDF2SHA1PasswordHasher) Encode(password string, salt string) string {
 // EncodeWithIteration encodes the given password (adding the given salt) with
 // iteration then returns encoded.
 func (p *PBKDF2SHA1PasswordHasher) EncodeWithIteration(password string, salt string, iter int) string {
-	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, 32, sha1.New))
+	hash := fmt.Sprintf("%s", pbkdf2.Key([]byte(password), []byte(salt), iter, sha1.Size, sha1.New))
 	hash = base64.StdEncoding.EncodeToString([]byte(hash))
 	return fmt.Sprintf("%s%s%d%s%s%s%s", p.Algorithm(), HashSeparator, iter, HashSeparator, salt, HashSeparator, hash)
 }
@@ -33,7 +34,9 @@ func (p *PBKDF2SHA1PasswordHasher) Algorithm() string {
 // Verify takes the raw password and the encoded one, then checks if they match.
 func (p *PBKDF2SHA1PasswordHasher) Verify(password string, encoded string) bool {
 	results := strings.Split(encoded, HashSeparator)
-	attempt := p.Encode(password, results[2])
+	iteration, _ := strconv.Atoi(results[1])
+	salt := results[2]
+	attempt := p.EncodeWithIteration(password, salt, iteration)
 	return encoded == attempt
 }
 
